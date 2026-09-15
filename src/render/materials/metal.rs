@@ -26,7 +26,7 @@ impl Material for Metal {
 
         let result = ScatterData {
             attenuation: self.albedo,
-            scattered: Ray::new(rec.point, reflected),
+            scattered: Ray::new(rec.point, reflected, ray_in.pixel_x, ray_in.pixel_y),
         };
         if result.scattered.direction().dot(rec.normal) > 0.0 {
             Some(result)

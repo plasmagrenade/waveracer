@@ -83,7 +83,7 @@ impl RaySpawner {
         };
         let ray_direction = pixel_center - ray_origin;
 
-        Ray::new(ray_origin, ray_direction)
+        Ray::new(ray_origin, ray_direction, x, y)
     }
 
     pub fn defocus_disk_sample(&self) -> DVec3 {

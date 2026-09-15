@@ -54,7 +54,7 @@ impl Material for Dielectric {
 
         let result = ScatterData {
             attenuation,
-            scattered: Ray::new(rec.point, direction),
+            scattered: Ray::new(rec.point, direction, ray_in.pixel_x, ray_in.pixel_y),
         };
         Some(result)
     }

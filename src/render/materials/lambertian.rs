@@ -29,7 +29,7 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, _ray_in: &Ray, rec: &HitRecord) -> Option<ScatterData> {
+    fn scatter(&self, ray_in: &Ray, rec: &HitRecord) -> Option<ScatterData> {
         // diffuse reflectance - ray gets scattered in a random dir from the normal
         let mut scatter_dir = rec.normal + random_unit_vector();
         if near_zero(scatter_dir) {
@@ -38,7 +38,7 @@ impl Material for Lambertian {
 
         let result = ScatterData {
             attenuation: self.tex.value(rec.u, rec.v, rec.point),
-            scattered: Ray::new(rec.point, scatter_dir),
+            scattered: Ray::new(rec.point, scatter_dir, ray_in.pixel_x, ray_in.pixel_y),
         };
         Some(result)
     }

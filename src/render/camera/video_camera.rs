@@ -3,7 +3,8 @@ use std::{collections::LinkedList, mem::take};
 use glam::DVec3;
 use kdam::{BarExt, tqdm};
 
-use crate::render::BVHNode;
+use crate::math::{GpuRay, Ray};
+use crate::render::{BVHNode, GpuTriangle, Triangle, null_material_ptr, run_kernel};
 use crate::{
     math::{
         Color, Lerp,
@@ -76,6 +77,15 @@ impl<T: Renderer> VideoCamera<T> {
             .map(move |(frame, s)| self.render_frame(&[Box::new(world.clone())], &s, frame))
     }
 
+    pub fn render_frames_gpu(&self, world: &[SomeHittable]) -> impl Iterator<Item = FrameData> {
+        self.transitions
+            .clone()
+            .into_iter()
+            .flatten()
+            .enumerate()
+            .map(move |(frame, s)| self.render_frame_gpu(world, &s, frame))
+    }
+
     fn render_frame(
         &self,
         world: &[SomeHittable],
@@ -110,6 +120,63 @@ impl<T: Renderer> VideoCamera<T> {
                 pixels.push(pixel_color / self.film.samples_per_pixel as f64);
             }
         }
+
+        FrameData {
+            w: self.film.width,
+            h: self.film.height,
+            pixels,
+            frame_number,
+            t: 0.0,
+        }
+    }
+
+    fn render_frame_gpu(
+        &self,
+        world: &[SomeHittable],
+        camera_state: &CameraState,
+        frame_number: usize,
+    ) -> FrameData {
+        let mut pixels: Vec<Color> = vec![];
+        let mut rays: Vec<Ray> = vec![];
+
+        let ray_spawner = RaySpawner::new(self, camera_state);
+
+        // generate primary rays for each pixel, load into buffer
+        // cast each ray into scene via gpu kernel (results in output buffer)
+        // for each output result, if hit, color white, else color black
+        for y in 0..self.film.height {
+            for x in 0..self.film.width {
+                let mut pixel_color = Color::ZERO;
+
+                let offset = random_in_xy_unit_square();
+
+                let ray = ray_spawner.generate_primary_ray(x, y, offset);
+                // rays.push(GpuRay::from(&ray));
+                rays.push(ray);
+                // pixels.push(DVec3::splat(0.5));
+            }
+        }
+
+        let plane_a = DVec3::new(-10.0, -0.5, -11.0);
+        let plane_b = DVec3::new(-10.0, -0.5, 9.0);
+        let plane_c = DVec3::new(10.0, -0.5, -11.0);
+        let plane_d = DVec3::new(10.0, -0.5, 9.0);
+        let plane_left = Triangle::new(plane_a, plane_b, plane_c, null_material_ptr());
+        let plane_right = Triangle::new(plane_b, plane_c, plane_d, null_material_ptr());
+        let tris = &[plane_left, plane_right];
+
+        let gpu_rays: Vec<GpuRay> = rays.iter().map(GpuRay::from).collect();
+        let gpu_tris: Vec<GpuTriangle> = tris.iter().map(GpuTriangle::from).collect();
+        let result = run_kernel(&gpu_rays, &gpu_tris);
+        let hit_buf = result.unwrap();
+        dbg!(hit_buf[0] as f64 * 255.0);
+        dbg!(hit_buf[1] as f64 * 255.0);
+
+        for hit in hit_buf {
+            let pixel = DVec3::splat(hit as f64 * 255.0);
+            pixels.push(pixel);
+        }
+        // pixels.push(DVec3::splat(0.5));
 
         FrameData {
             w: self.film.width,

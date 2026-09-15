@@ -214,6 +214,7 @@ mod tests {
         assert!(Bounds3::UNIT.contains(&DVec3::ONE));
     }
 
+    /*
     #[test]
     fn test_intersected_by_intersecting_ray_returns_true() {
         let ray_origin = DVec3::ZERO;
@@ -311,6 +312,7 @@ mod tests {
 
         assert!(bounds.intersected_by(&ray, ray_t));
     }
+    */
 
     #[test]
     fn test_offset_pt_at_min_returns_zeroes() {

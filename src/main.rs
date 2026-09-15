@@ -26,7 +26,8 @@ fn main() {
 
     let mut errs = vec![];
 
-    for frame in scene.camera.render_accel_frames(&root) {
+    // for frame in scene.camera.render_accel_frames(&root) {
+    for frame in scene.camera.render_frames_gpu(&scene.world) {
         if let Err(val) = image_writer.write(&frame) {
             errs.push(format!("frame {}: {}", frame.frame_number, val));
         }

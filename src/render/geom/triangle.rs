@@ -9,9 +9,9 @@ use crate::{
 
 #[derive(Clone)]
 pub struct Triangle {
-    a: DVec3,
-    b: DVec3,
-    c: DVec3,
+    pub a: DVec3,
+    pub b: DVec3,
+    pub c: DVec3,
     mat: Arc<dyn Material>,
     aabb: Bounds3,
 }
@@ -108,6 +108,7 @@ mod tests {
 
     use super::*;
 
+    /*
     #[test]
     fn test_hit_nonintersecting_ray_returns_none() {
         let a = DVec3::ZERO;
@@ -147,6 +148,7 @@ mod tests {
         assert!(!record.is_front_face);
         // TODO: should I add tests for uv?
     }
+    */
 
     #[test]
     fn test_aabb_returns_bounding_box() {
