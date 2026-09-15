@@ -157,13 +157,11 @@ impl<T: Renderer> VideoCamera<T> {
             }
         }
 
-        let plane_a = DVec3::new(-10.0, -0.5, -11.0);
-        let plane_b = DVec3::new(-10.0, -0.5, 9.0);
-        let plane_c = DVec3::new(10.0, -0.5, -11.0);
-        let plane_d = DVec3::new(10.0, -0.5, 9.0);
+        let plane_a = DVec3::new(-1.0, -0.5, -1.0);
+        let plane_b = DVec3::new(-1.0, 0.5, -1.0);
+        let plane_c = DVec3::new(1.0, -0.5, -1.0);
         let plane_left = Triangle::new(plane_a, plane_b, plane_c, null_material_ptr());
-        let plane_right = Triangle::new(plane_b, plane_c, plane_d, null_material_ptr());
-        let tris = &[plane_left, plane_right];
+        let tris = &[plane_left];
 
         let gpu_rays: Vec<GpuRay> = rays.iter().map(GpuRay::from).collect();
         let gpu_tris: Vec<GpuTriangle> = tris.iter().map(GpuTriangle::from).collect();
@@ -173,8 +171,13 @@ impl<T: Renderer> VideoCamera<T> {
         dbg!(hit_buf[1] as f64 * 255.0);
 
         for hit in hit_buf {
-            let pixel = DVec3::splat(hit as f64 * 255.0);
-            pixels.push(pixel);
+            if hit > 0.0 {
+                pixels.push(DVec3::ONE);
+            } else {
+                pixels.push(DVec3::ZERO);
+            }
+            // let pixel = DVec3::splat(hit as f64 * 255.0);
+            // pixels.push(pixel);
         }
         // pixels.push(DVec3::splat(0.5));
 
