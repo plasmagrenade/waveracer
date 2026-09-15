@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 approx = "0.5.1"
+bytemuck = { version = "1.25.2", features = ["derive"] }
 derive_more = { version = "2.1.1", features = ["full"] }
 dyn-clone = "1.0.20"
 glam = "0.32.1"
