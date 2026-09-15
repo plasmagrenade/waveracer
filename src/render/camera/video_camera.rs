@@ -165,7 +165,7 @@ impl<T: Renderer> VideoCamera<T> {
 
         let gpu_rays: Vec<GpuRay> = rays.iter().map(GpuRay::from).collect();
         let gpu_tris: Vec<GpuTriangle> = tris.iter().map(GpuTriangle::from).collect();
-        let result = run_kernel(&gpu_rays, &gpu_tris);
+        let result = run_kernel(&gpu_rays, &gpu_tris, &self.film);
         let hit_buf = result.unwrap();
         dbg!(hit_buf[0] as f64 * 255.0);
         dbg!(hit_buf[1] as f64 * 255.0);

@@ -6,7 +6,7 @@ use rt2::render::MultiFilePngWriter;
 use rt2::scene::bunny;
 
 fn main() {
-    let render_w = 1000.0;
+    let render_w = 10000.0;
     let aspect_ratio = 0.6;
 
     let renderer = MonteCarloRenderer { max_depth: 10 };
@@ -27,6 +27,7 @@ fn main() {
     let mut errs = vec![];
 
     // for frame in scene.camera.render_accel_frames(&root) {
+    // for frame in scene.camera.render_frames(&scene.world) {
     for frame in scene.camera.render_frames_gpu(&scene.world) {
         if let Err(val) = image_writer.write(&frame) {
             errs.push(format!("frame {}: {}", frame.frame_number, val));
