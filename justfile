@@ -1,4 +1,11 @@
-run filename:
+run:
+  just clean || true
+  cargo run --release
+
+view:
+  open output/frame_000000000.png
+
+video filename:
   just clean || true
   cargo run --release
   just convert {{filename}}
